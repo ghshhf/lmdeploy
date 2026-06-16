@@ -32,6 +32,8 @@ from lmdeploy.serve.openai.protocol import UpdateParamsRequest
 from lmdeploy.tokenizer import Tokenizer
 from lmdeploy.utils import FlattenedTensorBucket, FlattenedTensorMetadata, get_logger
 
+from lmdeploy.pytorch.engine.model_agent.agent_types import BatchedOutputs, BatchedLogProbs
+from lmdeploy.pytorch.engine.model_agent.agent_utils import msg_with_rank, cache_swapping, model_forward
 from .dp_utils import DistGatherScalar, DPForwardMeta, GatheredDPForwardMeta
 from .inputs_maker import build_inputs_maker
 from .profiler import AgentProfiler
@@ -44,105 +46,6 @@ class SleepWakeupState:
     to_sleep: asyncio.Event = field(default_factory=asyncio.Event)
     to_wakeup: asyncio.Event = field(default_factory=asyncio.Event)
     is_sleeping: bool = False
-
-
-@dataclass
-class BatchedLogProbs:
-    vals: torch.Tensor
-    indices: torch.Tensor
-
-    def to_cpu(self):
-        """To cpu."""
-        return BatchedLogProbs(vals=self.vals.cpu().detach(), indices=self.indices.cpu().detach())
-
-    def to_numpy(self):
-        """To numpy."""
-        if self.vals.dtype == torch.bfloat16:
-            np_vals = self.vals
-        else:
-            np_vals = self.vals.detach().numpy()
-        return BatchedLogProbs(vals=np_vals, indices=self.indices.detach().numpy())
-
-    def to_tensor(self):
-        """To tensor."""
-        if isinstance(self.vals, torch.Tensor):
-            vals = self.vals
-        else:
-            vals = torch.from_numpy(self.vals)
-        return BatchedLogProbs(vals=vals, indices=torch.from_numpy(self.indices))
-
-
-@dataclass
-class BatchedOutputs:
-    next_token_ids: torch.Tensor
-    stopped: torch.Tensor
-    stop_pos: torch.Tensor | None = None
-    logits: torch.Tensor | None = None
-    model_metas: list[dict[str, Any]] = None
-    logprobs: BatchedLogProbs | None = None
-    new_token_timestamp: int = 0
-    extra_outputs: ExtraOutputs | None = None
-    all_routed_experts: torch.Tensor | None = None
-
-    def to_cpu(self):
-        """To cpu."""
-        out = dict()
-        for f in fields(self):
-            k = f.name
-            v = getattr(self, k)
-            if isinstance(v, torch.Tensor):
-                v = v.cpu().detach()
-            elif hasattr(v, 'to_cpu'):
-                v = v.to_cpu()
-            out[k] = v
-        return BatchedOutputs(**out)
-
-    def to_numpy(self):
-        """To numpy."""
-        out = dict()
-        for f in fields(self):
-            k = f.name
-            v = getattr(self, k)
-            if isinstance(v, torch.Tensor) and v.dtype != torch.bfloat16:
-                v = v.detach().numpy()
-            elif hasattr(v, 'to_numpy'):
-                v = v.to_numpy()
-            out[k] = v
-        return BatchedOutputs(**out)
-
-    def to_tensor(self):
-        """To tensor."""
-        out = dict()
-        for f in fields(self):
-            k = f.name
-            v = getattr(self, k)
-            if isinstance(v, np.ndarray):
-                v = torch.from_numpy(v)
-            elif hasattr(v, 'to_tensor'):
-                v = v.to_tensor()
-            out[k] = v
-        return BatchedOutputs(**out)
-
-
-def msg_with_rank(rank: int, msg: str):
-    """Return message with rank."""
-    return f'rank[{rank}] - {msg}'
-
-
-def cache_swapping(cache_engine: CacheEngine, swap_in_map: dict, swap_out_map: dict):
-    """Perform cache swapping."""
-    issued_cache_op = False
-    swap_in_map = swap_in_map or dict()
-    swap_out_map = swap_out_map or dict()
-    if len(swap_in_map) > 0:
-        cache_engine.swap_in(swap_in_map)
-        issued_cache_op = True
-    if len(swap_out_map) > 0:
-        cache_engine.swap_out(swap_out_map)
-        issued_cache_op = True
-
-    if issued_cache_op:
-        cache_engine.events.wait()
 
 
 @torch.inference_mode()

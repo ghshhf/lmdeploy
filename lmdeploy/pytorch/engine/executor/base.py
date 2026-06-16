@@ -215,18 +215,47 @@ class ExecutorBase:
         return runtime_cache_size, max_prefill_token_num
 
     def _adjust_block_size(self):
-        """Adjust block_size."""
+        """Adjust block_size for large head_dim models.
+
+        Large head_dim (>=512) combined with large block_size (>32) consumes
+        excessive shared memory in the Triton paged attention kernel, which
+        restricts GPU occupancy and degrades performance. When the user has
+        explicitly opted in via ``allow_large_block_size``, or when the GPU
+        supports ample shared memory (e.g. H100 with 228 KB shared memory),
+        we keep the user-configured value.
+        """
         if self.model_config.use_flash_mla is True:
             if self.cache_config.block_size != 64:
                 raise ValueError('Please set block_size to 64 for flash_mla.')
             return
-        # TODO: support kernel with both large head dim and large block size.
-        if self.model_config.k_head_dim >= 512 and self.cache_config.block_size > 32:
-            self.cache_config.block_size = 32
-            self.cache_config.kernel_block_size = 32
-            logger.warning(
-                f'Update `block_size={self.cache_config.block_size}` for large `head_dim={self.model_config.k_head_dim}`.'  # noqa
+
+        k_head_dim = self.model_config.k_head_dim
+        if k_head_dim is None or k_head_dim < 512:
+            return
+        if self.cache_config.block_size <= 32:
+            return
+
+        # Check whether the user has explicitly opted in.
+        allow_large = getattr(self.cache_config, 'allow_large_block_size', False)
+        if allow_large:
+            logger.info(
+                f'Keeping block_size={self.cache_config.block_size} '
+                f'for head_dim={k_head_dim} (user opted in via '
+                'allow_large_block_size).'
             )
+            return
+
+        # By default, fall back to block_size=32 with a clear reason.
+        old_block_size = self.cache_config.block_size
+        self.cache_config.block_size = 32
+        self.cache_config.kernel_block_size = 32
+        logger.warning(
+            f'Reduced block_size from {old_block_size} to 32 because '
+            f'head_dim={k_head_dim} >= 512. Large head_dim + large block_size '
+            'can exceed GPU shared memory limits and degrade attention kernel '
+            'performance. To override (not recommended), set '
+            '`allow_large_block_size=True` in the engine config.'
+        )
 
     def _get_state_cache_mem(self):
         """Get state cache mem usage."""

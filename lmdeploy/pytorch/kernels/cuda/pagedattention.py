@@ -869,9 +869,12 @@ def flash_attn_with_kvcache(
     BLOCK = k_cache.size(s_dim)
     assert BLOCK >= 16
     if Lq > 512 and BLOCK > 32:
-        logger.warning(f'`head_dim={Lq}` and `block_size={BLOCK}` '
-                       'might leads to bad performance. '
-                       'Please reduce `block_size`.')
+        logger.warning(
+            f'head_dim={Lq} with block_size={BLOCK} may degrade Triton '
+            'attention kernel performance due to GPU shared memory limits. '
+            'The PyTorch engine will automatically reduce block_size to 32 '
+            'unless allow_large_block_size=True is set in PytorchEngineConfig.'
+        )
 
     valid = num_tokens % batch == 0
     assert valid, 'we only support decoding paged attention.'

@@ -441,6 +441,9 @@ class PytorchEngineConfig:
     hf_overrides: dict[str, Any] | None = None
     disable_vision_encoder: bool = False
     logprobs_mode: str = None
+    # When True, allow block_size > 32 even when head_dim >= 512.
+    # See executor/base.py _adjust_block_size for context.
+    allow_large_block_size: bool = False
     # router replay
     enable_return_routed_experts: bool = False
     enable_transfer_obj_ref: bool = False

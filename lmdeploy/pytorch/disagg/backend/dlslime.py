@@ -92,6 +92,14 @@ class DLSlimeBackend(MigrationBackendImpl):
     def p2p_connect(self, remote_engine_id: str, conn_req: DistServeKVTransferEndpointInfo):
         self.links[remote_engine_id].connect(conn_req)
 
+    def p2p_drop_connect(self, remote_engine_id: str):
+        """Drop the DLSlime migration connection for the given engine."""
+        if remote_engine_id not in self.links:
+            logger.warning(f'No DLSlime connection found for remote_engine_id={remote_engine_id}')
+            return
+        del self.links[remote_engine_id]
+        logger.info(f'Dropped DLSlime connection for remote_engine_id={remote_engine_id}')
+
     async def p2p_migrate(self, assignment: MigrationAssignment, async_op: bool = False):
         await self.links[assignment.remote_engine_id].p2p_migrate(assignment)
 

@@ -28,6 +28,16 @@ class MigrationBackendImpl:
         raise NotImplementedError
 
     @abstractmethod
+    def p2p_drop_connect(self, remote_engine_id: str):
+        """Drop (close) a previously established migration connection.
+
+        Implementations MUST release all RDMA / network resources held
+        for the given ``remote_engine_id``, including registered memory
+        regions and transport-layer connections.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def p2p_migrate(self, assignment: MigrationAssignment, async_op: bool = False):
         raise NotImplementedError
 

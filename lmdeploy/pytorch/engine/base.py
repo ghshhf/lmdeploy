@@ -31,7 +31,7 @@ class EngineBase:
         """Drop connection.
 
         1. drop engine connection (zmq connection)
-        2. TODO(JimyMa) drop RDMA Connection.
+        2. drop RDMA Connection via cache_engine.p2p_drop_connect.
         """
         raise NotImplementedError('This method is not implemented.')
 

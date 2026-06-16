@@ -100,7 +100,7 @@ class EngineWorkerBase:
         """Drop connection.
 
         1. drop engine connection (zmq connection)
-        2. TODO(JimyMa) drop RDMA Connection.
+        2. drop RDMA Connection via cache_engine.p2p_drop_connect.
         """
         return self.engine.p2p_drop_connect(drop_conn_request)
 

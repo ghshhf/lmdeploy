@@ -473,6 +473,11 @@ class CacheEngine:
     def p2p_connect(self, remote_engine_id: str, migration_conn_request: list[DistServeKVTransferEndpointInfo]):
         self.migration_backend_impl.p2p_connect(remote_engine_id, migration_conn_request[self.tp_rank])
 
+    def p2p_drop_connect(self, remote_engine_id: str):
+        """Drop RDMA connection for the given remote engine."""
+        if self.migration_backend_impl is not None:
+            self.migration_backend_impl.p2p_drop_connect(remote_engine_id)
+
     async def migrate(self, migration_execution_inputs: MigrationExecutionBatch):
         if self.cache_config.block_size != self.cache_config.kernel_block_size:
             raise RuntimeError('PD migration does not support block_size != kernel_block_size.')

@@ -72,6 +72,7 @@ class ConfigBuilder:
             device_type=engine_config.device_type,
             migration_backend=engine_config.migration_backend,
             role=engine_config.role,
+            allow_large_block_size=engine_config.allow_large_block_size,
             # reserve 1 blocks for dummy input and padding
             num_reserved_gpu_blocks=1)
         return cache_config

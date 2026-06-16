@@ -107,6 +107,11 @@ class CacheConfig:
     # reserved blocks for dummy inputs, init to 0 for unit test.
     num_reserved_gpu_blocks: int = 0
 
+    # When True, allow block_size > 32 even when head_dim >= 512.
+    # This may exceed GPU shared memory limits and degrade attention
+    # kernel performance; only enable if you understand the trade-off.
+    allow_large_block_size: bool = False
+
     # For PD Disaggregation
     role: EngineRole = EngineRole.Hybrid
     migration_backend: MigrationBackend = MigrationBackend.DLSlime

@@ -253,6 +253,16 @@ class MooncakeBackend(MigrationBackendImpl):
     def p2p_connect(self, remote_engine_id: str, connect_request: DistServeKVTransferEndpointInfo):
         self.links[remote_engine_id].connect(connect_request)
 
+    def p2p_drop_connect(self, remote_engine_id: str):
+        """Drop the Mooncake migration connection for the given engine."""
+        if remote_engine_id not in self.links:
+            logger.warning(f'No Mooncake connection found for remote_engine_id={remote_engine_id}')
+            return
+        # Remove the link entry; the TransferEngine will be garbage-collected,
+        # which releases its RDMA endpoints and registered memory regions.
+        del self.links[remote_engine_id]
+        logger.info(f'Dropped Mooncake connection for remote_engine_id={remote_engine_id}')
+
     async def p2p_migrate(self, assignment: MigrationAssignment, async_op: bool = False):
         await self.links[assignment.remote_engine_id].p2p_migrate(assignment, async_op=async_op)
 
