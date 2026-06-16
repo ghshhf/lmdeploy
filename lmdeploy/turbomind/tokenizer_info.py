@@ -282,5 +282,6 @@ class TokenizerInfo(_xgr.TokenizerInfo):
             )
 
         else:
-            # TODO(yixin): unsupported tokenizer
-            raise ValueError(f'Unsupported tokenizer type: {type(tokenizer)}')
+            # NOTE: Only HuggingFace tokenizers with SentencePiece or tiktoken backends are supported
+            raise ValueError(f'Unsupported tokenizer type: {type(tokenizer)}. '
+                             'Currently only HuggingFace tokenizers with SentencePiece/tiktoken backends are supported.')

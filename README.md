@@ -105,6 +105,19 @@ LMDeploy is a toolkit for compressing, deploying, and serving LLM, developed by 
 
 - **Excellent Compatibility**: LMDeploy supports [KV Cache Quant](docs/en/quantization/kv_quant.md), [AWQ](docs/en/quantization/w4a16.md) and [Automatic Prefix Caching](docs/en/inference/turbomind_config.md) to be used simultaneously.
 
+## 🚀 Choosing the Right Engine
+
+LMDeploy provides two inference engines with different strengths:
+
+| Engine | Speed | VLM Support | Platform Support | Best For |
+|:------:|:-----:|:-----------:|:----------------:|:--------:|
+| **TurboMind** | ⚡ Fastest | ⚠️ Limited (LLMs best) | CUDA GPUs | Production LLM deployment |
+| **PyTorch** | Fast | ✅ Full VLM support | CUDA + Ascend + Maca + Cambricon | VLMs, new models, custom development |
+
+**Quick rule of thumb:** Use TurboMind for LLMs (Llama, Qwen, InternLM), switch to PyTorch engine for Vision-Language Models or when adding custom model support.
+
+Set the engine via `backend="turbomind"` (default) or `backend="pytorch"` in your config.
+
 # Performance
 
 ![v0 1 0-benchmark](https://github.com/InternLM/lmdeploy/assets/4560679/8e455cf1-a792-4fa8-91a2-75df96a2a5ba)

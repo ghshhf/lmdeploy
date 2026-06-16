@@ -24,7 +24,8 @@ from lmdeploy.utils import get_logger, get_max_batch_size, get_model
 
 from .supported_models import is_supported
 
-# TODO: find another way import _turbomind
+# NOTE: _turbomind and _xgrammar are C extensions loaded from lib/
+# They are automatically loaded via __init__.py's sys.path setup
 lmdeploy_dir = osp.split(lmdeploy.__file__)[0]
 sys.path.append(osp.join(lmdeploy_dir, 'lib'))
 import _turbomind as _tm  # noqa: E402

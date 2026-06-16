@@ -166,7 +166,9 @@ class OpenCVVideoLoader(VideoLoader):
         # Use transformers transformers.video_utils.VideoMetadata format
         # For models like Qwen3-VL/GLM4.5V, this metadata
         # can cause incorrect timestamp calculation without num_frames=-1.
-        # TODO: zhouxinyu, support per-request do_sample_frames
+        # NOTE: Per-request do_sample_frames is not yet supported.
+        # Currently all frames are sampled at video loading time.
+        # Future: set do_sample_frames per-request to handle videos with varying frame requirements.
         metadata = {
             'total_num_frames': total_frames_num,
             'fps': original_fps,

@@ -26,7 +26,10 @@ class Phi3VisionModel(LlavaHfVisionModel):
                                                                  device_map='cpu',
                                                                  trust_remote_code=trust_remote_code)
         else:
-            raise NotImplementedError('turbomind has not supported phi3v yet')
+            raise NotImplementedError(
+                'TurboMind engine does not support Phi3-Vision encoding yet. '
+                'Please use backend="pytorch" in your engine config as a workaround. '
+                'See: https://lmdeploy.readthedocs.io/en/latest/inference/pytorch_backend.html')
 
     def preprocess(self, messages: list[dict]) -> list[dict]:
         """Refers to `super.preprocess() for spec."""

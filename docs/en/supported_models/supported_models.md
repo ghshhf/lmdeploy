@@ -48,6 +48,11 @@ This table provides a quick reference for which inference engine supports each m
 4. **DeepSeek V3**: Requires PyTorch engine due to model architecture complexity.
 5. Starting from version 0.11.1, PyTorchEngine no longer provides support for mllama.
 
+**TurboMind VLM Limitations:**
+- The following VLM models are **PyTorch engine only** when used with vision inputs: Llama4, Gemma3-VL, GLM4V, Phi3-Vision
+- When using these models with TurboMind, you will see a clear `NotImplementedError` with guidance on switching to PyTorch engine
+- For maximum VLM compatibility, always use `backend="pytorch"` in your engine config
+
 ### Quantization Support Comparison
 
 | Quantization Type | TurboMind | PyTorch Engine | Notes |

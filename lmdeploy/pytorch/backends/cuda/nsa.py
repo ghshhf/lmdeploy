@@ -17,7 +17,8 @@ class TritonNSAIndexFP8(BaseNSAIndexFP8):
         self.softmax_scale = softmax_scale
         self.block_size = block_size
         self.fill = fill
-        # TODO: configable scale fmt
+        # NOTE: scale format is currently fixed to 'ue8m0'.
+        # Future: make scale format configurable via backend config or model spec.
         self.scale_fmt = 'ue8m0'
 
     def forward(self, q: Tensor, k: Tensor, weights: Tensor, k_cache: Tensor, k_s_cache: Tensor,

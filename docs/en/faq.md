@@ -61,6 +61,28 @@ It's probably due to a low-version cuda toolkit. LMDeploy runtime requires a min
 
 ## Inference
 
+### NotImplementedError: turbomind has not supported [model] yet
+
+This error occurs when using a Vision-Language Model (VLM) with the TurboMind engine that does not yet support its vision encoder.
+
+**Affected models:** Llama4, Gemma3-VL, GLM4V, Phi3-Vision, and similar newer VLMs.
+
+**Solution:** Switch to the PyTorch engine by setting `backend="pytorch"` in your engine config:
+
+```python
+from lmdeploy import pipeline, PytorchEngineConfig
+
+backend_config = PytorchEngineConfig()
+pipe = pipeline('model-path', backend_config=backend_config)
+```
+
+Or via CLI:
+```shell
+lmdeploy serve api_server model-path --backend pytorch
+```
+
+For more details on PyTorch engine usage, see [PyTorch Backend Guide](https://lmdeploy.readthedocs.io/en/latest/inference/pytorch_backend.html)
+
 ### RuntimeError: \[TM\]\[ERROR\] CUDA runtime error: out of memory /workspace/lmdeploy/src/turbomind/utils/allocator.h
 
 This is usually due to a disproportionately large memory ratio for the k/v cache, which is dictated by `TurbomindEngineConfig.cache_max_entry_count`.

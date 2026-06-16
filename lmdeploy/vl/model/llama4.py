@@ -55,8 +55,11 @@ class LLama4VisionModel(VisionModel):
     def build_model(self, trust_remote_code: bool = False):
         """Build the vision part of a VLM model when backend is turbomind, or
         load the whole VLM model when `self.with_llm==True`"""
-        # TODO, implement for tubomind engine
-        raise NotImplementedError()
+        # TODO, implement for turbomind engine
+        raise NotImplementedError(
+            'Llama4 vision encoding is not yet supported in TurboMind engine. '
+            'Use backend="pytorch" in your engine config as a workaround. '
+            'See: https://lmdeploy.readthedocs.io/en/latest/inference/pytorch_backend.html')
 
     def preprocess(self, messages: list[dict]) -> list[dict]:
         """Refers to `super.preprocess() for spec."""
@@ -96,7 +99,10 @@ class LLama4VisionModel(VisionModel):
             the message list with forwarding results included
         """
         # TODO, implement for turbomind engine
-        raise NotImplementedError()
+        raise NotImplementedError(
+            'Llama4 vision forward is not yet supported in TurboMind engine. '
+            'Use backend="pytorch" in your engine config as a workaround. '
+            'See: https://lmdeploy.readthedocs.io/en/latest/inference/pytorch_backend.html')
 
     @staticmethod
     def proc_messages(messages, chat_template, sequence_start):

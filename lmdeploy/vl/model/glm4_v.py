@@ -41,7 +41,10 @@ class GLM4VisionModel(VisionModel):
                                                                  device_map='cpu',
                                                                  trust_remote_code=trust_remote_code)
         else:
-            raise NotImplementedError('turbomind has not supported glm4v yet')
+            raise NotImplementedError(
+                'TurboMind engine does not support GLM4V vision encoding yet. '
+                'Please use backend="pytorch" in your engine config as a workaround. '
+                'See: https://lmdeploy.readthedocs.io/en/latest/inference/pytorch_backend.html')
 
     def preprocess(self, messages: list[dict]) -> list[dict]:
         """Refers to the spec of `super.preprocess()"""

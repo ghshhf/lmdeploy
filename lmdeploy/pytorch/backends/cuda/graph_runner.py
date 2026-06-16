@@ -207,7 +207,8 @@ class CUDAGraphRunner(GraphRunner):
         if self.has_try_compile_model:
             return
 
-        # TODO: recovery it when torch.compile is stable (should be add a flag to enable it?)
+        # NOTE: torch.compile integration deferred - needs more testing for stability.
+        # Re-enable with a config flag when torch.compile is production-ready for LLM inference.
         # if hasattr(self.model, 'compile_model'):
         #     method = getattr(self.model, 'compile_model')
         #     method()
